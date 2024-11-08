@@ -118,3 +118,4 @@
             interval: 1m
         state: present
       when: zabbixoutput is search("Proxmox")
+...
