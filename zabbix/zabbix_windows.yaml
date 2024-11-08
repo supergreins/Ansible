@@ -1,0 +1,66 @@
+---
+
+-
+  #hosts
+  remote_user: admin
+  hosts: proxmox_all_running
+
+  vars:
+    ansible_shell_type: powershell
+    ansible_connection: ssh
+      #tasks
+  tasks:
+
+    - name: debug
+      ansible.builtin.debug:
+         msg:  "your text is {{ ansible_distribution }}_{{ ansible_distribution_major_version }} "
+
+#    - name: Gather OS variables
+#      include_vars: "{{ item }}"
+#      with_first_found:
+#          - "./vars/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}.yaml"
+
+    - name: Install chocolatey
+      win_shell: Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString(>
+
+    - name: Install Zabbix_agent2
+      win_chocolatey:
+        name: zabbix-agent2
+        state: present
+
+    - name: Copy Zabbix conf from linux to win
+      win_template:
+        src: ./files/zabbix_agent2_win.conf
+        dest: C:\program files\Zabbix Agent 2\zabbix_agent2.conf
+
+    - name: Restart Zabbix after config transfer
+      win_service:
+        name: zabbix agent 2
+        state: restarted
+
+    - name: Add client to Zabbix
+      vars:
+        ansible_user: Admin
+        ansible_httpapi_pass: zabbix
+        ansible_network_os: community.zabbix.zabbix
+        ansible_connection: httpapi
+        ansible_shell_type: sh
+      delegate_to: Zabbix.greins.local
+      zabbix_host:
+        host_name: "{{ inventory_hostname }}"
+        host_groups:
+          - Hypervisors
+        link_templates:
+          - Windows by Zabbix agent
+        status: enabled
+        state: present
+        interfaces:
+          - type: 1
+            main: 1
+            useip: 0
+            ip: "{{ ansible_default_ipv4.address }}"
+            dns: "{{ inventory_hostname }}"
+
+
+
+...
