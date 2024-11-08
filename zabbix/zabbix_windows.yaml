@@ -1,14 +1,13 @@
 ---
 
 -
-  #hosts
   remote_user: admin
   hosts: proxmox_all_running
 
   vars:
     ansible_shell_type: powershell
     ansible_connection: ssh
-      #tasks
+
   tasks:
 
     - name: debug
