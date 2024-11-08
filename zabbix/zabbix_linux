@@ -1,0 +1,120 @@
+---
+-
+  hosts: proxmox_all_running
+  become: true
+
+  vars:
+    ansible_become_pass: Nogetjeghusker1!
+
+  vars_files:
+    - ./vars/zabbix_server.yaml
+
+      #tasks
+  tasks:
+
+    - name: debug
+      ansible.builtin.debug:
+         msg:  "your text is {{ ansible_distribution }}_{{ ansible_distribution_major_version }}_{{ ansible_host}} "
+
+    - name: Gather OS variables
+      include_vars: "{{ item }}"
+      with_first_found:
+          - "./vars/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}.yaml"
+
+    - name: Download Zabbix repo package
+      get_url:
+          url: "{{ zabbix_repo_url }}"
+          dest: /tmp/zabbix.deb
+
+    - name: Install Zabbix repo
+      apt:
+         deb: /tmp/zabbix.deb
+         state: present
+      ignore_errors: true
+
+    - name: Install Zabbix-agent2
+      package:
+        name: zabbix-agent2
+        state: latest
+      when: ansible_host == 'ZabbixAgent'
+
+    - name: Install Zabbix-agent2-plugin-*
+      package:
+        name: zabbix-agent2-plugin-*
+        state: latest
+      when: ansible_host == 'ZabbixAgent'
+
+    - name: Move Zabbix config file
+      template:
+        src: ./files/zabbix_agent2.conf
+        dest: /etc/zabbix/zabbix_agent2.conf
+        mode: 0644
+
+    - name: Start and enable Zabbix service
+      service:
+          name: zabbix-agent2
+          state: restarted
+
+    - name: Add client to Zabbix
+      vars:
+        ansible_user: Admin
+        ansible_httpapi_pass: zabbix
+        ansible_network_os: community.zabbix.zabbix
+        ansible_connection: httpapi
+      delegate_to: Zabbix.greins.local
+      zabbix_host:
+        host_name: "{{ inventory_hostname }}"
+        host_groups:
+          - Hypervisors
+        link_templates:
+          - Proxmox VE by HTTP
+        status: enabled
+        state: present
+        interfaces:
+          - type: 1
+            main: 1
+            useip: 0
+            ip: "{{ ansible_default_ipv4.address }}"
+            dns: "{{ inventory_hostname }}"
+      register: zabbixoutput
+
+    - debug:
+       msg: this is your output "{{ zabbixoutput }}"
+
+
+
+    - name: Install macros to Proxmox agent
+      vars:
+        ansible_user: Admin
+        ansible_httpapi_pass: zabbix
+        ansible_network_os: community.zabbix.zabbix
+        ansible_connection: httpapi
+      delegate_to: Zabbix.greins.local
+      zabbix_host:
+        host_name: "{{ inventory_hostname }}"
+        macros:
+          - macro: "{$PVE.TOKEN.ID}"
+            value: zabbix@pam!ZabbixMonitoring01
+          - macro: "{$PVE.TOKEN.SECRET}"
+            value: bbe68131-7a80-4cde-a71a-19778e58c0ca
+          - macro: "{$PVE.URL.HOST}"
+            value: 10.131.9.110
+      when: zabbixoutput is search("Proxmox")
+
+    - name: Install extra trigger to proxmox agent
+      vars:
+        ansible_user: Admin
+        ansible_httpapi_pass: zabbix
+        ansible_network_os: community.zabbix.zabbix
+        ansible_connection: httpapi
+      delegate_to: Zabbix.greins.local
+      community.zabbix.zabbix_item:
+        name: agent_ping
+        template_name: Proxmox VE by HTTP
+        params:
+            type: zabbix_agent
+            key: agent.ping
+            value_type: numeric_unsigned
+            interval: 1m
+        state: present
+      when: zabbixoutput is search("Proxmox")
