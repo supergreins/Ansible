@@ -6,12 +6,7 @@
   vars:
     ansible_become_pass: Nogetjeghusker1!
 
-  vars_files:
-    - ./vars/zabbix_server.yaml
-
-      #tasks
   tasks:
-
     - name: debug
       ansible.builtin.debug:
          msg:  "your text is {{ ansible_distribution }}_{{ ansible_distribution_major_version }}_{{ ansible_host}} "
@@ -36,13 +31,11 @@
       package:
         name: zabbix-agent2
         state: latest
-      when: ansible_host == 'ZabbixAgent'
 
     - name: Install Zabbix-agent2-plugin-*
       package:
         name: zabbix-agent2-plugin-*
         state: latest
-      when: ansible_host == 'ZabbixAgent'
 
     - name: Move Zabbix config file
       template:
@@ -80,8 +73,6 @@
 
     - debug:
        msg: this is your output "{{ zabbixoutput }}"
-
-
 
     - name: Install macros to Proxmox agent
       vars:
