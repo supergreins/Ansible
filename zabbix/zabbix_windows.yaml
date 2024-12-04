@@ -1,7 +1,7 @@
 ---
 
 -
-  remote_user: admin
+  remote_user: administrator
   hosts: proxmox_all_running
 
   vars:
@@ -44,7 +44,7 @@
         ansible_network_os: community.zabbix.zabbix
         ansible_connection: httpapi
         ansible_shell_type: sh
-      delegate_to: Zabbix.greins.local
+      delegate_to: ITBOL01ZAB01.datatechniq.local
       zabbix_host:
         host_name: "{{ inventory_hostname }}"
         host_groups:
