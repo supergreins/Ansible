@@ -4,7 +4,7 @@
   become: true
 
   vars:
-    ansible_become_pass: Nogetjeghusker1!
+    ansible_become_pass: password
 
   tasks:
     - name: debug
@@ -54,7 +54,7 @@
         ansible_httpapi_pass: zabbix
         ansible_network_os: community.zabbix.zabbix
         ansible_connection: httpapi
-      delegate_to: Zabbix.greins.local
+      delegate_to: ITBOL01ZAB01.datatechniq.local
       zabbix_host:
         host_name: "{{ inventory_hostname }}"
         host_groups:
@@ -80,16 +80,16 @@
         ansible_httpapi_pass: zabbix
         ansible_network_os: community.zabbix.zabbix
         ansible_connection: httpapi
-      delegate_to: Zabbix.greins.local
+      delegate_to: ITBOL01ZAB01.datatechniq.local
       zabbix_host:
         host_name: "{{ inventory_hostname }}"
         macros:
           - macro: "{$PVE.TOKEN.ID}"
-            value: zabbix@pam!ZabbixMonitoring01
+            value: Zabbix@pam!ZabbixMonitoring01
           - macro: "{$PVE.TOKEN.SECRET}"
-            value: bbe68131-7a80-4cde-a71a-19778e58c0ca
+            value: 8d861bbb-4984-46e0-a752-85a428b71fe2
           - macro: "{$PVE.URL.HOST}"
-            value: 10.131.9.110
+            value: 10.131.9.130
       when: zabbixoutput is search("Proxmox")
 
     - name: Install extra trigger to proxmox agent
