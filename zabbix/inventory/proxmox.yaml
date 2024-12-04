@@ -1,8 +1,9 @@
 plugin: community.general.proxmox
-url: https://10.131.9.110:8006
-user: jonas@pve
-token_id: ansible
-token_secret: 1e5e8355-ef77-4e63-ab70-e619cfb5f807
+url: https://10.131.9.130:8006
+user: root@pam  
+secret: password
+#token_id: ansible
+#token_secret: 1e5e8355-ef77-4e63-ab70-e619cfb5f807
 want_facts: true
 validate_certs: false
 want_proxmox_nodes_ansible_host: false
