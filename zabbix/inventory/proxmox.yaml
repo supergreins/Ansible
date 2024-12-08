@@ -1,12 +1,10 @@
 plugin: community.general.proxmox
 url: https://10.131.9.130:8006
 user: root@pam
-secret: password
-#token_id: ansible
-#token_secret: 1e5e8355-ef77-4e63-ab70-e619cfb5f807
+password: password
 want_facts: true
 validate_certs: false
 want_proxmox_nodes_ansible_host: false
-compose:
-  ansible_host: proxmox_ipconfig0.ip | default(proxmox_net0.ip) | ipaddr('address')
+#compose:
+#  ansible_host: proxmox_ipconfig0.ip | default(proxmox_net0.ip) | ipaddr('address')
 #ansible_host: proxmox_agent_interfaces | selectattr('name', 'equalto','eth0') | map(attribute='ip-addresses') | flatten | first | ipaddr('address')
