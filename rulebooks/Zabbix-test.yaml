@@ -14,4 +14,4 @@
           organization: "Default"
           job_args:
             extra_vars:
-              hosts: "{{ event.payload.host_host }}"
+              problem_hosts: "{{ event.payload.host_host }}"
