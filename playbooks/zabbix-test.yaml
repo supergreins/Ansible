@@ -8,4 +8,5 @@
   tasks:
     -  name: Shutdown the hosts
        community.general.shutdown:
-    
+         msg: "Illegal action detected, shutting down immedieatly"
+         delay: 5
