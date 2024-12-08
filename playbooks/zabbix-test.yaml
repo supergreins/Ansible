@@ -3,6 +3,6 @@
   hosts: "{{ problem_hosts }}"
   gather_facts: False
   tasks:
-    name: Shutdown the hosts
-    community.general.shutdown:
+    -  name: Shutdown the hosts
+       community.general.shutdown:
     
