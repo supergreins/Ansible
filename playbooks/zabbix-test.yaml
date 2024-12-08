@@ -1,3 +1,8 @@
 ---
-- name: Shutdown problem PC's
-hosts: "{{ hosts }}"
+- name: Shutdown of problem hosts
+  hosts: "{{ problem_hosts }}"
+  gather_facts: False
+  tasks:
+  - name: Shutdown the hosts
+    community.general.shutdown:
+    
