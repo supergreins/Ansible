@@ -15,3 +15,4 @@
           job_args:
             extra_vars:
               problem_hosts: "{{ event.payload.host_host }}"
+...
