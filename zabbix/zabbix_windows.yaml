@@ -5,8 +5,8 @@
   hosts: proxmox_all_running
 
   vars:
-    ansible_shell_type: powershell
     ansible_connection: ssh
+    ansible_shell_type: powershell
 
   tasks:
 
@@ -19,8 +19,9 @@
 #      with_first_found:
 #          - "./vars/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}.yaml"
 
-    - name: Install chocolatey
-      win_shell: Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    - name: Install chokolade
+      win_shell: Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString(>
+
     - name: Install Zabbix_agent2
       win_chocolatey:
         name: zabbix-agent2
@@ -56,9 +57,11 @@
           - type: 1
             main: 1
             useip: 0
-            ip: "{{ ansible_default_ipv4.address }}"
+            #ip: "{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0])  }}"
             dns: "{{ inventory_hostname }}"
-
+      tags:
+         - test
 
 
 ...
+
