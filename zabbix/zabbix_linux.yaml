@@ -31,6 +31,7 @@
       package:
         name: zabbix-agent2
         state: latest
+        update_cache: yes
 
     - name: Install Zabbix-agent2-plugin-*
       package:
@@ -47,8 +48,30 @@
       service:
           name: zabbix-agent2
           state: restarted
-
-    - name: Add client to Zabbix
+    - name: Add normal client to zabbix
+      vars:
+        ansible_user: Admin
+        ansible_httpapi_pass: zabbix
+        ansible_network_os: community.zabbix.zabbix
+        ansible_connection: httpapi
+      delegate_to: ITBOL01ZAB01.datatechniq.local
+      zabbix_host:
+        host_name: "{{ inventory_hostname }}"
+        host_groups:
+          - Hypervisors
+        link_templates:
+          - Linux by Zabbix agent
+        status: enabled
+        state: present
+        interfaces:
+          - type: 1
+            main: 1
+            useip: 0
+            ip: "{{ ansible_default_ipv4.address }}"
+            dns: "{{ inventory_hostname }}"
+      when: inventory_hostname is not search("ZAB")
+      
+    - name: Add proxmox client to zabbix
       vars:
         ansible_user: Admin
         ansible_httpapi_pass: zabbix
@@ -70,10 +93,11 @@
             ip: "{{ ansible_default_ipv4.address }}"
             dns: "{{ inventory_hostname }}"
       register: zabbixoutput
-
-    - debug:
-       msg: this is your output "{{ zabbixoutput }}"
-
+      when: inventory_hostname is search("ZAB")
+      
+   - debug:
+      msg: this is your output "{{ zabbixoutput }}"
+       
     - name: Install macros to Proxmox agent
       vars:
         ansible_user: Admin
@@ -98,7 +122,7 @@
         ansible_httpapi_pass: zabbix
         ansible_network_os: community.zabbix.zabbix
         ansible_connection: httpapi
-      delegate_to: Zabbix.greins.local
+      delegate_to: ITBOL01ZAB01.datatechniq.local
       community.zabbix.zabbix_item:
         name: agent_ping
         template_name: Proxmox VE by HTTP
@@ -110,3 +134,4 @@
         state: present
       when: zabbixoutput is search("Proxmox")
 ...
+
