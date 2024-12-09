@@ -10,3 +10,4 @@
        community.general.shutdown:
          msg: "Illegal action detected, shutting down immedieatly"
          delay: 5
+...
