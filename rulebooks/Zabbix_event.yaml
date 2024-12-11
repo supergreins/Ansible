@@ -15,4 +15,9 @@
           job_args:
             extra_vars:
               problem_hosts: "{{ event.payload.host_host }}"
+  rules:
+    - name: debug
+      condition: event.payload is defined
+      action:
+        debug:  
 ...
